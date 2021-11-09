@@ -10,8 +10,7 @@ bool addTrigger = false;
 bool subtractTrigger = false;
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
@@ -20,7 +19,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->display->setText(QString::number(calcValue));
     QPushButton *numButtons[10];
-    for(int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 10; ++i)
+    {
         QString buttonName = "Button" + QString::number(i);
         numButtons[i] = MainWindow::findChild<QPushButton *>(buttonName);
         connect(numButtons[i], SIGNAL(released()), this, SLOT(NumPressed()));
@@ -42,66 +42,119 @@ MainWindow::~MainWindow()
 
 //Define all the slot functions for the buttons here
 
-void MainWindow::NumPressed() {
+//Handle when a number button is pressed
+
+void MainWindow::NumPressed()
+{
     QPushButton *button = (QPushButton *)sender();
     QString buttonValue = button->text();
     QString displayValue = ui->display->text();
-    if ((displayValue.toDouble() == 0) || (displayValue.toDouble() == 0.0)) {
+    if ((displayValue.toDouble() == 0) || (displayValue.toDouble() == 0.0))
+    {
         ui->display->setText(buttonValue);
-    } else {
+    }
+    else
+    {
         QString newValue = displayValue + buttonValue;
         double doubleNewValue = newValue.toDouble();
         ui->display->setText(QString::number(doubleNewValue, 'g', 16));
     }
 }
 
-void MainWindow::MathButtonPressed() {
+//Handle when one of the four math function keys are pressed
+
+void MainWindow::MathButtonPressed()
+{
+
+    //Reset all triggers to false
     divideTrigger = false;
     multiplyTrigger = false;
     addTrigger = false;
     subtractTrigger = false;
+
+    //Get the value currently displayed and of button pressed
     QString displayValue = ui->display->text();
     calcValue = displayValue.toDouble();
     QPushButton *button = (QPushButton *)sender();
     QString buttonValue = button->text();
-    if (QString::compare(buttonValue, "/", Qt::CaseInsensitive) == 0) {
+
+    //If the button value corresponds to a given function,
+    //set that math function's trigger to true
+    if (QString::compare(buttonValue, "/", Qt::CaseInsensitive) == 0)
+    {
         divideTrigger = true;
-    } else if (QString::compare(buttonValue, "*", Qt::CaseInsensitive) == 0) {
+    }
+    else if (QString::compare(buttonValue, "*", Qt::CaseInsensitive) == 0)
+    {
         multiplyTrigger = true;
-    } else if (QString::compare(buttonValue, "+", Qt::CaseInsensitive) == 0) {
+    }
+    else if (QString::compare(buttonValue, "+", Qt::CaseInsensitive) == 0)
+    {
         addTrigger = true;
-    } else if (QString::compare(buttonValue, "-", Qt::CaseInsensitive) == 0) {
+    }
+    else if (QString::compare(buttonValue, "-", Qt::CaseInsensitive) == 0)
+    {
         subtractTrigger = true;
     }
+
+    //Clear display so the user can input another number
     ui->display->setText("");
 }
 
-void MainWindow::EqualButtonPressed() {
+//Handle when the equal button is pressed
+
+void MainWindow::EqualButtonPressed()
+{
+
+    //Set variables for solution and currently displayed value
     double solution = 0.0;
     QString displayValue = ui->display->text();
     double doubleDisplayValue = displayValue.toDouble();
-    if (addTrigger || subtractTrigger || multiplyTrigger || divideTrigger) {
-        if (addTrigger) {
+
+    //Depending on which trigger has been set to true,
+    //the appropriate function will be done to the current
+    //calculated value
+    if (addTrigger || subtractTrigger || multiplyTrigger || divideTrigger)
+    {
+        if (addTrigger)
+        {
             solution = calcValue + doubleDisplayValue;
-        } else if (subtractTrigger) {
+        }
+        else if (subtractTrigger)
+        {
             solution = calcValue - doubleDisplayValue;
-        } else if (multiplyTrigger) {
+        }
+        else if (multiplyTrigger)
+        {
             solution = calcValue * doubleDisplayValue;
-        } else if (divideTrigger) {
+        }
+        else if (divideTrigger)
+        {
             solution = calcValue / doubleDisplayValue;
         }
     }
+
+    //Update the display text to the solution
     ui->display->setText(QString::number(solution));
 }
 
-void MainWindow::SignButtonPressed() {
+//Handle when the sign button is pressed
+
+void MainWindow::SignButtonPressed()
+{
+
+    //Create variables with currently displayed value,
+    //a regular expression, and a regular expression match
     QString displayValue = ui->display->text();
     QRegularExpression re("[-]?[0-9.]*", QRegularExpression::CaseInsensitiveOption);
     QRegularExpressionMatch match = re.match(displayValue);
-    if (match.hasMatch()) {
+
+    //If the display value matches the given regular expression
+    //then multiply the display value by -1 and update the display text.
+    if (match.hasMatch())
+    {
         double doubleDisplayValue = displayValue.toDouble();
         double doubleDisplayValueSign = -1 * doubleDisplayValue;
         ui->display->setText(QString::number(doubleDisplayValueSign));
     }
 }
-
